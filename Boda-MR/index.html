@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Álbum AR - CTI</title>
+
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Marca CTI */
+        #cti-brand {
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            background: rgba(0, 0, 0, 0.65);
+
+            padding: 10px 18px;
+
+            border-radius: 40px;
+
+            color: white;
+
+            z-index: 9999;
+
+            pointer-events: none;
+
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+
+            box-shadow: 0 4px 15px rgba(0,0,0,.3);
+        }
+
+        #cti-brand img {
+            height: 32px;
+            width: auto;
+        }
+
+        #cti-brand span {
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 480px) {
+
+            #cti-brand {
+                padding: 8px 14px;
+            }
+
+            #cti-brand img {
+                height: 26px;
+            }
+
+            #cti-brand span {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Marca CTI -->
+    <div id="cti-brand">
+        <img src="assets/logo-cti.png" alt="CTI">
+        <span>CTI - Centro Técnico Informático</span>
+    </div>
+
+    <a-scene
+        mindar-image="imageTargetSrc: assets/targets/targets.mind;"
+        color-space="sRGB"
+        renderer="colorManagement: true;"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false">
+
+        <a-assets>
+
+            <video
+                id="video"
+                src="assets/video/video.mp4"
+                loop
+                playsinline
+                crossorigin="anonymous">
+            </video>
+
+        </a-assets>
+
+        <a-camera
+            position="0 0 0"
+            look-controls="enabled: false">
+        </a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+
+            <a-video
+                src="#video"
+                material="shader: flat"
+                position="0 0 0.01"
+                width="1"
+                height="1">
+            </a-video>
+
+        </a-entity>
+
+    </a-scene>
+
+    <script>
+
+        const video = document.querySelector("#video");
+        const target = document.querySelector("[mindar-image-target]");
+
+        target.addEventListener("targetFound", () => {
+
+            console.log("Imagen detectada");
+
+            video.currentTime = 0;
+
+            video.play()
+                .catch(error => {
+                    console.log("Error reproduciendo video:", error);
+                });
+
+        });
+
+        target.addEventListener("targetLost", () => {
+
+            console.log("Imagen perdida");
+
+            video.pause();
+
+        });
+
+    </script>
+
+</body>
+
+</html>
