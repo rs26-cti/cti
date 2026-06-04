@@ -2,26 +2,37 @@
 <html lang="es">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Álbum AR - CTI</title>
 
+    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
+    <!-- MindAR -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
     <style>
+
         body {
             margin: 0;
             overflow: hidden;
             font-family: Arial, sans-serif;
         }
 
-        /* Marca CTI */
+        /* ==========================================
+           Marca CTI
+           ========================================== */
+
         #cti-brand {
+
             position: fixed;
+
             bottom: 12px;
             left: 50%;
+
             transform: translateX(-50%);
 
             display: flex;
@@ -44,77 +55,185 @@
             -webkit-backdrop-filter: blur(6px);
 
             box-shadow: 0 4px 15px rgba(0,0,0,.3);
+
         }
 
         #cti-brand img {
+
             height: 32px;
             width: auto;
+
         }
 
         #cti-brand span {
+
             font-size: 13px;
             font-weight: 600;
             white-space: nowrap;
+
+        }
+
+        /* ==========================================
+           Ocultar botones VR/AR de A-Frame
+           ========================================== */
+
+        .a-enter-vr-button,
+        .a-enter-ar-button {
+
+            display: none !important;
+
         }
 
         @media (max-width: 480px) {
 
             #cti-brand {
+
                 padding: 8px 14px;
+
             }
 
             #cti-brand img {
+
                 height: 26px;
+
             }
 
             #cti-brand span {
+
                 font-size: 11px;
+
             }
+
         }
+
     </style>
+
 </head>
 
 <body>
 
-    <!-- Marca CTI -->
+    <!-- ==========================================
+         Firma CTI
+         ========================================== -->
+
     <div id="cti-brand">
+
         <img src="assets/logo-cti.png" alt="CTI">
+
         <span>CTI - Centro Técnico Informático</span>
+
     </div>
 
+    <!-- ==========================================
+         Escena principal MindAR
+         ========================================== -->
+
     <a-scene
+
         mindar-image="imageTargetSrc: assets/targets/targets.mind;"
+
         color-space="sRGB"
+
         renderer="colorManagement: true;"
+
         vr-mode-ui="enabled: false"
+
         device-orientation-permission-ui="enabled: false">
+
+        <!-- ==========================================
+             Recursos
+             ========================================== -->
 
         <a-assets>
 
+            <!-- Video principal -->
+
             <video
                 id="video"
-                src="assets/video/texto.gif"
+                src="assets/video/video.mp4"
                 loop
                 playsinline
                 crossorigin="anonymous">
             </video>
 
+            <!-- GIF decorativo -->
+
+            <img
+                id="gifCumple"
+                src="assets/video/texto.gif">
+
         </a-assets>
+
+        <!-- ==========================================
+             Cámara
+             ========================================== -->
 
         <a-camera
             position="0 0 0"
             look-controls="enabled: false">
         </a-camera>
 
+        <!-- ==========================================
+             Target de MindAR
+             ========================================== -->
+
         <a-entity mindar-image-target="targetIndex: 0">
 
+            <!-- ==========================================
+                 Video principal
+                 ========================================== -->
+
             <a-video
+
                 src="#video"
+
                 material="shader: flat"
+
                 position="0 0 0.01"
+
                 width="1.12"
+
                 height="2">
+
             </a-video>
+
+            <!-- ==========================================
+                 GIF decorativo superior
+                 ========================================== -->
+
+            <a-image
+
+                src="#gifCumple"
+
+                position="0 1.35 0.02"
+
+                width="1.8"
+
+                height="0.5">
+
+            </a-image>
+
+            <!-- ==========================================
+                 Texto animado
+                 ========================================== -->
+
+            <a-text
+
+                id="mensaje"
+
+                value=""
+
+                position="0 -1.25 0.02"
+
+                align="center"
+
+                color="#FFD700"
+
+                width="4"
+
+                side="double">
+
+            </a-text>
 
         </a-entity>
 
@@ -122,27 +241,86 @@
 
     <script>
 
-        const video = document.querySelector("#video");
-        const target = document.querySelector("[mindar-image-target]");
+        /* ==========================================
+           Referencias
+           ========================================== */
+
+        const video =
+            document.querySelector("#video");
+
+        const target =
+            document.querySelector("[mindar-image-target]");
+
+        const texto =
+            document.querySelector("#mensaje");
+
+        /* ==========================================
+           Animación tipo máquina de escribir
+           ========================================== */
+
+        function escribirTexto() {
+
+            const mensaje =
+                "🎉 Feliz Cumpleaños 🎉";
+
+            let i = 0;
+
+            texto.setAttribute("value", "");
+
+            const intervalo = setInterval(() => {
+
+                texto.setAttribute(
+                    "value",
+                    mensaje.substring(0, i)
+                );
+
+                i++;
+
+                if (i > mensaje.length) {
+
+                    clearInterval(intervalo);
+
+                }
+
+            }, 100);
+
+        }
+
+        /* ==========================================
+           Cuando detecta la fotografía
+           ========================================== */
 
         target.addEventListener("targetFound", () => {
 
             console.log("Imagen detectada");
 
+            escribirTexto();
+
             video.currentTime = 0;
 
             video.play()
                 .catch(error => {
-                    console.log("Error reproduciendo video:", error);
+
+                    console.log(
+                        "Error reproduciendo video:",
+                        error
+                    );
+
                 });
 
         });
+
+        /* ==========================================
+           Cuando pierde la fotografía
+           ========================================== */
 
         target.addEventListener("targetLost", () => {
 
             console.log("Imagen perdida");
 
             video.pause();
+
+            texto.setAttribute("value", "");
 
         });
 
