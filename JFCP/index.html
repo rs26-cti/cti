@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Álbum AR - CTI</title>
+
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+    <style>
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        /* ==========================
+           Marca CTI
+           ========================== */
+
+        #cti-brand {
+
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            background: rgba(0, 0, 0, 0.65);
+
+            padding: 10px 18px;
+
+            border-radius: 40px;
+
+            color: white;
+
+            z-index: 9999;
+
+            pointer-events: none;
+
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+
+            box-shadow: 0 4px 15px rgba(0,0,0,.3);
+
+        }
+
+        #cti-brand img {
+
+            height: 32px;
+            width: auto;
+
+        }
+
+        #cti-brand span {
+
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+
+        }
+
+        /* Ocultar botón VR */
+
+        .a-enter-vr-button,
+        .a-enter-ar-button {
+
+            display: none !important;
+
+        }
+
+        @media (max-width: 480px) {
+
+            #cti-brand {
+
+                padding: 8px 14px;
+
+            }
+
+            #cti-brand img {
+
+                height: 26px;
+
+            }
+
+            #cti-brand span {
+
+                font-size: 11px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- Marca CTI -->
+
+    <div id="cti-brand">
+
+        <img src="assets/logo-cti.png" alt="CTI">
+
+        <span>CTI - Centro Técnico Informático</span>
+
+    </div>
+
+    <!-- Escena AR -->
+
+    <a-scene
+
+        mindar-image="imageTargetSrc: assets/targets/targets.mind;"
+
+        color-space="sRGB"
+
+        renderer="colorManagement: true;"
+
+        vr-mode-ui="enabled: false"
+
+        device-orientation-permission-ui="enabled: false">
+
+        <!-- Recursos -->
+
+        <a-assets>
+
+            <video
+                id="video"
+                src="assets/video/video.mp4"
+                loop
+                playsinline
+                crossorigin="anonymous">
+            </video>
+
+        </a-assets>
+
+        <!-- Cámara -->
+
+        <a-camera
+            position="0 0 0"
+            look-controls="enabled: false">
+        </a-camera>
+
+        <!-- Imagen objetivo -->
+
+        <a-entity mindar-image-target="targetIndex: 0">
+
+            <!-- Video principal -->
+
+            <a-video
+
+                src="#video"
+
+                material="shader: flat"
+
+                position="0 0 0.01"
+
+                width="1.12"
+
+                height="2">
+
+            </a-video>
+
+            <!-- Texto animado -->
+
+          <!-- Sombra/Borde negro -->
+
+<a-text
+    id="mensajeSombra"
+    value=""
+    position="0.02 -1.08 0.01"
+    align="center"
+    color="#000000"
+    width="6"
+    side="double">
+</a-text>
+
+<!-- Texto principal -->
+
+<a-text
+    id="mensaje"
+    value=""
+    position="0 -1.05 0.02"
+    align="center"
+    color="#FFFFFF"
+    width="6"
+    side="double">
+</a-text>
+
+        </a-entity>
+
+    </a-scene>
+
+  <script>
+
+const video =
+    document.querySelector("#video");
+
+const target =
+    document.querySelector("[mindar-image-target]");
+
+const texto =
+    document.querySelector("#mensaje");
+
+const sombra =
+    document.querySelector("#mensajeSombra");
+
+let intervaloParpadeo;
+let timeoutCambio;
+
+/* ==========================
+   Escribir texto
+   ========================== */
+
+function escribirTexto(mensaje, velocidad = 180) {
+
+    texto.setAttribute("value", "");
+    sombra.setAttribute("value", "");
+
+    let i = 0;
+
+    const intervalo = setInterval(() => {
+
+        const parcial =
+            mensaje.substring(0, i);
+
+        texto.setAttribute("value", parcial);
+        sombra.setAttribute("value", parcial);
+
+        i++;
+
+        if (i > mensaje.length) {
+
+            clearInterval(intervalo);
+
+        }
+
+    }, velocidad);
+
+}
+
+/* ==========================
+   Parpadeo suave
+   ========================== */
+
+function iniciarParpadeo() {
+
+    let visible = true;
+
+    intervaloParpadeo = setInterval(() => {
+
+        visible = !visible;
+
+        texto.setAttribute(
+            "visible",
+            visible
+        );
+
+        sombra.setAttribute(
+            "visible",
+            visible
+        );
+
+    }, 900);
+
+}
+
+/* ==========================
+   Detecta imagen
+   ========================== */
+
+target.addEventListener("targetFound", () => {
+
+    console.log("Imagen detectada");
+
+    video.currentTime = 0;
+
+    video.play()
+        .catch(error => {
+            console.log(error);
+        });
+
+    // Primer mensaje
+
+    escribirTexto(
+        "FELICIDADES",
+        200
+    );
+
+    // Segundo mensaje después de unos segundos
+
+    timeoutCambio = setTimeout(() => {
+
+        texto.setAttribute("value", "");
+        sombra.setAttribute("value", "");
+
+        escribirTexto(
+            "Proverbios 16:3",
+            220
+        );
+
+        setTimeout(() => {
+
+            iniciarParpadeo();
+
+        }, 4000);
+
+    }, 5000);
+
+});
+
+/* ==========================
+   Pierde imagen
+   ========================== */
+
+target.addEventListener("targetLost", () => {
+
+    console.log("Imagen perdida");
+
+    video.pause();
+
+    texto.setAttribute("value", "");
+    sombra.setAttribute("value", "");
+
+    texto.setAttribute("visible", true);
+    sombra.setAttribute("visible", true);
+
+    clearInterval(intervaloParpadeo);
+    clearTimeout(timeoutCambio);
+
+});
+
+</script>
+
+</body>
+
+</html>
