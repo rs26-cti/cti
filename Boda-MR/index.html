@@ -8,10 +8,8 @@
 
     <title>Álbum AR - CTI</title>
 
-    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
-    <!-- MindAR -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
     <style>
@@ -22,14 +20,13 @@
             font-family: Arial, sans-serif;
         }
 
-        /* ==========================================
+        /* ==========================
            Marca CTI
-           ========================================== */
+           ========================== */
 
         #cti-brand {
 
             position: fixed;
-
             bottom: 12px;
             left: 50%;
 
@@ -73,9 +70,7 @@
 
         }
 
-        /* ==========================================
-           Ocultar botones VR/AR de A-Frame
-           ========================================== */
+        /* Ocultar botón VR */
 
         .a-enter-vr-button,
         .a-enter-ar-button {
@@ -112,9 +107,7 @@
 
 <body>
 
-    <!-- ==========================================
-         Firma CTI
-         ========================================== -->
+    <!-- Marca CTI -->
 
     <div id="cti-brand">
 
@@ -124,9 +117,7 @@
 
     </div>
 
-    <!-- ==========================================
-         Escena principal MindAR
-         ========================================== -->
+    <!-- Escena AR -->
 
     <a-scene
 
@@ -140,13 +131,9 @@
 
         device-orientation-permission-ui="enabled: false">
 
-        <!-- ==========================================
-             Recursos
-             ========================================== -->
+        <!-- Recursos -->
 
         <a-assets>
-
-            <!-- Video principal -->
 
             <video
                 id="video"
@@ -156,32 +143,20 @@
                 crossorigin="anonymous">
             </video>
 
-            <!-- GIF decorativo -->
-
-            <img
-                id="gifCumple"
-                src="assets/video/texto.gif">
-
         </a-assets>
 
-        <!-- ==========================================
-             Cámara
-             ========================================== -->
+        <!-- Cámara -->
 
         <a-camera
             position="0 0 0"
             look-controls="enabled: false">
         </a-camera>
 
-        <!-- ==========================================
-             Target de MindAR
-             ========================================== -->
+        <!-- Imagen objetivo -->
 
         <a-entity mindar-image-target="targetIndex: 0">
 
-            <!-- ==========================================
-                 Video principal
-                 ========================================== -->
+            <!-- Video principal -->
 
             <a-video
 
@@ -197,69 +172,31 @@
 
             </a-video>
 
-            <!-- ==========================================
-                 GIF decorativo superior
-                 ========================================== -->
+            <!-- Texto animado -->
 
-            <a-image
+            <a-text
 
-                src="#gifCumple"
+                id="mensaje"
 
-                position="0 1.35 0.02"
+                value=""
 
-                width="1.8"
+                position="0 -1.35 0.02"
 
-                height="0.5">
+                align="center"
 
-            </a-image>
+                color="#FFFFFF"
 
-            <!-- ==========================================
-                 Texto animado
-                 ========================================== -->
+                width="6"
 
-<a-entity mindar-image-target="targetIndex: 0">
+                side="double">
 
-    <a-video
-        src="#video"
-        material="shader: flat"
-        position="0 0 0.01"
-        width="1.12"
-        height="2">
-    </a-video>
-
-    <!-- Sombra -->
-
-    <a-text
-        id="mensajeSombra"
-        value=""
-        position="0.02 -1.27 0.01"
-        align="center"
-        color="#000000"
-        width="5">
-    </a-text>
-
-    <!-- Texto principal -->
-
-    <a-text
-        id="mensaje"
-        value=""
-        position="0 -1.25 0.02"
-        align="center"
-        color="#FFFFFF"
-        width="5">
-    </a-text>
-
-</a-entity>
+            </a-text>
 
         </a-entity>
 
     </a-scene>
 
     <script>
-
-        /* ==========================================
-           Referencias
-           ========================================== */
 
         const video =
             document.querySelector("#video");
@@ -268,55 +205,43 @@
             document.querySelector("[mindar-image-target]");
 
         const texto =
-    document.querySelector("#mensaje");
+            document.querySelector("#mensaje");
 
-const sombra =
-    document.querySelector("#mensajeSombra");
-
-        /* ==========================================
-           Animación tipo máquina de escribir
-           ========================================== */
+        /* ==========================
+           Texto tipo máquina de escribir
+           ========================== */
 
         function escribirTexto() {
 
-    const mensaje =
-        "Feliz Cumpleaños";
+            const mensaje =
+                "Feliz Cumpleanos";
 
-    let i = 0;
+            let i = 0;
 
-    texto.setAttribute("value", "");
-    sombra.setAttribute("value", "");
+            texto.setAttribute("value", "");
 
-    const intervalo = setInterval(() => {
+            const intervalo = setInterval(() => {
 
-        const parcial =
-            mensaje.substring(0, i);
+                texto.setAttribute(
+                    "value",
+                    mensaje.substring(0, i)
+                );
 
-        texto.setAttribute(
-            "value",
-            parcial
-        );
+                i++;
 
-        sombra.setAttribute(
-            "value",
-            parcial
-        );
+                if (i > mensaje.length) {
 
-        i++;
+                    clearInterval(intervalo);
 
-        if(i > mensaje.length){
+                }
 
-            clearInterval(intervalo);
+            }, 250);
 
         }
 
-    }, 180);
-
-}
-
-        /* ==========================================
-           Cuando detecta la fotografía
-           ========================================== */
+        /* ==========================
+           Detecta imagen
+           ========================== */
 
         target.addEventListener("targetFound", () => {
 
@@ -329,18 +254,15 @@ const sombra =
             video.play()
                 .catch(error => {
 
-                    console.log(
-                        "Error reproduciendo video:",
-                        error
-                    );
+                    console.log(error);
 
                 });
 
         });
 
-        /* ==========================================
-           Cuando pierde la fotografía
-           ========================================== */
+        /* ==========================
+           Pierde imagen
+           ========================== */
 
         target.addEventListener("targetLost", () => {
 
