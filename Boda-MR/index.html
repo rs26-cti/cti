@@ -174,107 +174,174 @@
 
             <!-- Texto animado -->
 
-            <a-text
+          <!-- Sombra/Borde negro -->
 
-                id="mensaje"
+<a-text
+    id="mensajeSombra"
+    value=""
+    position="0.02 -1.08 0.01"
+    align="center"
+    color="#000000"
+    width="6"
+    side="double">
+</a-text>
 
-                value=""
+<!-- Texto principal -->
 
-                position="0 -1.35 0.02"
-
-                align="center"
-
-                color="#FFFFFF"
-
-                width="6"
-
-                side="double">
-
-            </a-text>
+<a-text
+    id="mensaje"
+    value=""
+    position="0 -1.05 0.02"
+    align="center"
+    color="#FFFFFF"
+    width="6"
+    side="double">
+</a-text>
 
         </a-entity>
 
     </a-scene>
 
-    <script>
+  <script>
 
-        const video =
-            document.querySelector("#video");
+const video =
+    document.querySelector("#video");
 
-        const target =
-            document.querySelector("[mindar-image-target]");
+const target =
+    document.querySelector("[mindar-image-target]");
 
-        const texto =
-            document.querySelector("#mensaje");
+const texto =
+    document.querySelector("#mensaje");
 
-        /* ==========================
-           Texto tipo máquina de escribir
-           ========================== */
+const sombra =
+    document.querySelector("#mensajeSombra");
 
-        function escribirTexto() {
+let intervaloParpadeo;
+let timeoutCambio;
 
-            const mensaje =
-                "Feliz Cumpleanos";
+/* ==========================
+   Escribir texto
+   ========================== */
 
-            let i = 0;
+function escribirTexto(mensaje, velocidad = 180) {
 
-            texto.setAttribute("value", "");
+    texto.setAttribute("value", "");
+    sombra.setAttribute("value", "");
 
-            const intervalo = setInterval(() => {
+    let i = 0;
 
-                texto.setAttribute(
-                    "value",
-                    mensaje.substring(0, i)
-                );
+    const intervalo = setInterval(() => {
 
-                i++;
+        const parcial =
+            mensaje.substring(0, i);
 
-                if (i > mensaje.length) {
+        texto.setAttribute("value", parcial);
+        sombra.setAttribute("value", parcial);
 
-                    clearInterval(intervalo);
+        i++;
 
-                }
+        if (i > mensaje.length) {
 
-            }, 250);
+            clearInterval(intervalo);
 
         }
 
-        /* ==========================
-           Detecta imagen
-           ========================== */
+    }, velocidad);
 
-        target.addEventListener("targetFound", () => {
+}
 
-            console.log("Imagen detectada");
+/* ==========================
+   Parpadeo suave
+   ========================== */
 
-            escribirTexto();
+function iniciarParpadeo() {
 
-            video.currentTime = 0;
+    let visible = true;
 
-            video.play()
-                .catch(error => {
+    intervaloParpadeo = setInterval(() => {
 
-                    console.log(error);
+        visible = !visible;
 
-                });
+        texto.setAttribute(
+            "visible",
+            visible
+        );
 
+        sombra.setAttribute(
+            "visible",
+            visible
+        );
+
+    }, 900);
+
+}
+
+/* ==========================
+   Detecta imagen
+   ========================== */
+
+target.addEventListener("targetFound", () => {
+
+    console.log("Imagen detectada");
+
+    video.currentTime = 0;
+
+    video.play()
+        .catch(error => {
+            console.log(error);
         });
 
-        /* ==========================
-           Pierde imagen
-           ========================== */
+    // Primer mensaje
 
-        target.addEventListener("targetLost", () => {
+    escribirTexto(
+        "🎉 Feliz Cumpleanos 🎉",
+        200
+    );
 
-            console.log("Imagen perdida");
+    // Segundo mensaje después de unos segundos
 
-            video.pause();
+    timeoutCambio = setTimeout(() => {
 
-            texto.setAttribute("value", "");
+        texto.setAttribute("value", "");
+        sombra.setAttribute("value", "");
 
-        });
+        escribirTexto(
+            "❤️ Dios te bendiga ❤️",
+            220
+        );
 
-    </script>
+        setTimeout(() => {
+
+            iniciarParpadeo();
+
+        }, 4000);
+
+    }, 5000);
+
+});
+
+/* ==========================
+   Pierde imagen
+   ========================== */
+
+target.addEventListener("targetLost", () => {
+
+    console.log("Imagen perdida");
+
+    video.pause();
+
+    texto.setAttribute("value", "");
+    sombra.setAttribute("value", "");
+
+    texto.setAttribute("visible", true);
+    sombra.setAttribute("visible", true);
+
+    clearInterval(intervaloParpadeo);
+    clearTimeout(timeoutCambio);
+
+});
+
+</script>
 
 </body>
 
