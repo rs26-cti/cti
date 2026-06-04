@@ -217,23 +217,39 @@
                  Texto animado
                  ========================================== -->
 
-            <a-text
+<a-entity mindar-image-target="targetIndex: 0">
 
-                id="mensaje"
+    <a-video
+        src="#video"
+        material="shader: flat"
+        position="0 0 0.01"
+        width="1.12"
+        height="2">
+    </a-video>
 
-                value=""
+    <!-- Sombra -->
 
-                position="0 -1.25 0.02"
+    <a-text
+        id="mensajeSombra"
+        value=""
+        position="0.02 -1.27 0.01"
+        align="center"
+        color="#000000"
+        width="5">
+    </a-text>
 
-                align="center"
+    <!-- Texto principal -->
 
-                color="#FFD700"
+    <a-text
+        id="mensaje"
+        value=""
+        position="0 -1.25 0.02"
+        align="center"
+        color="#FFFFFF"
+        width="5">
+    </a-text>
 
-                width="4"
-
-                side="double">
-
-            </a-text>
+</a-entity>
 
         </a-entity>
 
@@ -252,7 +268,10 @@
             document.querySelector("[mindar-image-target]");
 
         const texto =
-            document.querySelector("#mensaje");
+    document.querySelector("#mensaje");
+
+const sombra =
+    document.querySelector("#mensajeSombra");
 
         /* ==========================================
            Animación tipo máquina de escribir
@@ -260,31 +279,40 @@
 
         function escribirTexto() {
 
-            const mensaje =
-                "🎉 Feliz Cumpleaños 🎉";
+    const mensaje =
+        "Feliz Cumpleaños";
 
-            let i = 0;
+    let i = 0;
 
-            texto.setAttribute("value", "");
+    texto.setAttribute("value", "");
+    sombra.setAttribute("value", "");
 
-            const intervalo = setInterval(() => {
+    const intervalo = setInterval(() => {
 
-                texto.setAttribute(
-                    "value",
-                    mensaje.substring(0, i)
-                );
+        const parcial =
+            mensaje.substring(0, i);
 
-                i++;
+        texto.setAttribute(
+            "value",
+            parcial
+        );
 
-                if (i > mensaje.length) {
+        sombra.setAttribute(
+            "value",
+            parcial
+        );
 
-                    clearInterval(intervalo);
+        i++;
 
-                }
+        if(i > mensaje.length){
 
-            }, 100);
+            clearInterval(intervalo);
 
         }
+
+    }, 180);
+
+}
 
         /* ==========================================
            Cuando detecta la fotografía
